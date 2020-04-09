@@ -1,2 +1,2 @@
-# wsuwp-plugin-code-snippets
+# wsuwp-plugin-tools
 Add code snippets to sites.
