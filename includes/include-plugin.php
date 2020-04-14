@@ -7,6 +7,13 @@ class Plugin {
 
 		require_once __DIR__ . '/include-options.php';
 		require_once __DIR__ . '/include-customizer.php';
+		require_once __DIR__ . '/include-admin-page.php';
+
+		if ( is_admin() ) {
+
+			require_once self::get_plugin_dir() . 'wsu-library/forms/form-fields/form-fields.php';
+
+		}
 
 		$this->init_modules();
 
@@ -14,7 +21,7 @@ class Plugin {
 
 	protected static function init_modules() {
 
-		require_once self::get_module_dir() . '/code-snippets/code-snippets.php';
+		require_once self::get_module_dir() . 'code-snippets/code-snippets.php';
 
 	}
 
