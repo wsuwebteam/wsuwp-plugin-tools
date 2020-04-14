@@ -12,6 +12,10 @@ class Code_Snippets {
 	);
 	protected static $nonce = 'wsuwp_tools_code_snippet_nonce';
 	protected static $nonce_action = 'wsuwp_tools_code_snippet_nonce_save_post';
+	protected static $snippets = array(
+		'header' => array(),
+		'footer' => array(),
+	);
 
 
 	public static function get( $property ) {
@@ -45,9 +49,25 @@ class Code_Snippets {
 
 			self::register_post_type();
 
-			add_action( 'edit_form_after_title', __CLASS__ . '::render_editor' );
+			if ( is_admin() ) {
 
-			add_action( 'save_post_code_snippet', __CLASS__ . '::save', 10, 3 );
+				add_action( 'edit_form_after_title', __CLASS__ . '::render_editor' );
+
+				add_action( 'save_post_code_snippet', __CLASS__ . '::save', 10, 3 );
+
+				add_action( 'save_post', __CLASS__ . '::save_metabox', 10, 3 );
+
+				add_action( 'add_meta_boxes', __CLASS__ . '::register_metabox' );
+
+				add_action( 'admin_menu', __CLASS__ . '::register_page' );
+
+			}
+
+			add_action( 'wp', __CLASS__ . '::set_snippets' );
+
+			add_action( 'wp_head', __CLASS__ . '::do_header_snippets' );
+
+			add_action( 'wp_footer', __CLASS__ . '::do_footer_snippets' );
 
 		}
 
@@ -88,7 +108,7 @@ class Code_Snippets {
 			'public'             => false,
 			'publicly_queryable' => false,
 			'show_ui'            => false,
-			'show_in_menu'       => true,
+			'show_in_menu'       => 'edit.php?post_type=code_snippet',
 			'query_var'          => true,
 			'rewrite'            => array( 'slug' => 'code-snippet' ),
 			'capability_type'    => 'post',
@@ -105,6 +125,23 @@ class Code_Snippets {
 		}
 
 		register_post_type( self::get( 'post_type' ), $args );
+
+	}
+
+
+	public static function register_page() {
+
+		if ( is_super_admin() ) {
+
+			add_submenu_page(
+				'wsu-tools',
+				'Code Snippets',
+				'Code Snippets',
+				'manage_options',
+				'edit.php?post_type=code_snippet'
+			);
+
+		}
 
 	}
 
@@ -126,9 +163,44 @@ class Code_Snippets {
 	}
 
 
+	public static function register_metabox() {
+
+		$screens = array( 'page', 'post' );
+
+		foreach ( $screens as $screen ) {
+
+			add_meta_box(
+				'wsuwp_tools_code_snippets',
+				'Activate Code Snippets',
+				__CLASS__ . '::the_metabox',
+				$screen,
+				'side'
+			);
+		}
+
+	}
+
+
+	public static function the_metabox( $post ) {
+
+		$snippets  = get_post_meta( $post->ID, 'wsuwp_post_code_snippets', true );
+
+		wp_nonce_field( self::get( 'nonce_action' ), self::get( 'nonce' ) );
+
+		Form_Fields::multi_checkbox(
+			'wsuwp_post_code_snippets',
+			array(
+				'choices'       => self::admin_get_code_snippets(),
+				'current_value' => $snippets,
+			)
+		);
+
+	}
+
+
 	public static function save( $post_id, $post, $update ) {
 
-		$save_args = array(
+		$save_settings = array(
 			'wsuwp_code_snippet_type'     => array(),
 			'wsuwp_code_snippet_location' => array(),
 			'wsuwp_code_snippet'          => array(
@@ -136,15 +208,39 @@ class Code_Snippets {
 			),
 		);
 
+		$save_args = array(
+			'nonce'        => self::get( 'nonce' ),
+			'nonce_action' => self::get( 'nonce_action' ),
+		);
+
 		if ( $update && 'code_snippet' === $post->post_type ) {
 
-			require_once Plugin::get_plugin_dir() . '/classes/class-save-post.php';
+			require_once Plugin::get_plugin_dir() . '/wsu-library/utilities/class-save-post.php';
 
-			$save_post = new Save_Post( $save_args, self::get( 'nonce_action' ), self::get( 'nonce' ) );
+			$save_post = new Save_Post( $save_settings, $save_args );
 
 			$save_post->save_post( $post_id, $post, $update );
 
 		}
+
+	}
+
+	public static function save_metabox( $post_id, $post, $update ) {
+
+		$save_settings = array(
+			'wsuwp_post_code_snippets' => array(),
+		);
+
+		$save_args = array(
+			'nonce'        => self::get( 'nonce' ),
+			'nonce_action' => self::get( 'nonce_action' ),
+		);
+
+		require_once Plugin::get_plugin_dir() . '/wsu-library/utilities/class-save-post.php';
+
+		$save_post = new Save_Post( $save_settings, $save_args );
+
+		$save_post->save_post( $post_id, $post, $update );
 
 	}
 
@@ -155,6 +251,96 @@ class Code_Snippets {
 
 	}
 
+	public static function admin_get_code_snippets( $as_array = true, $args = array() ) {
+
+		$default_args = array(
+			'post_type'      => 'code_snippet',
+			'posts_per_page' => -1,
+			'post_status'    => 'publish',
+		);
+
+		$args = array_merge( $default_args, $args );
+
+		$code_snippets = get_posts( $args );
+
+		if ( is_array( $code_snippets ) ) {
+
+			$snippet_array = array();
+
+			foreach ( $code_snippets as $code_snippet ) {
+
+				$snippet_array[ $code_snippet->ID ] = $code_snippet->post_title;
+
+			}
+
+			return $snippet_array;
+
+		} else {
+
+			return array();
+
+		}
+
+	}
+
+
+	public static function do_footer_snippets() {
+
+		if ( ! empty( self::$snippets['footer'] ) ) {
+
+			foreach ( self::$snippets['footer'] as $snippet ) {
+
+				echo $snippet;
+
+			}
+
+		}
+
+	}
+
+
+	public static function do_header_snippets() {
+
+		if ( ! empty( self::$snippets['header'] ) ) {
+
+			foreach ( self::$snippets['header'] as $snippet ) {
+
+				echo $snippet;
+
+			}
+		}
+
+	}
+
+
+	public static function set_snippets() {
+
+		if ( is_singular() ) {
+
+			$post_id = get_the_ID();
+
+			$post_snippets = get_post_meta( $post_id, 'wsuwp_post_code_snippets', true );
+
+			if ( ! empty( $post_snippets ) ) {
+
+				$snippets = explode( ',', $post_snippets );
+
+				foreach ( $snippets as $snippet_id ) {
+
+					$post_meta = get_post_meta( $snippet_id );
+
+					$location = ( ! empty( $post_meta['wsuwp_code_snippet_location'] ) && is_array( $post_meta['wsuwp_code_snippet_location'] ) ) ? reset( $post_meta['wsuwp_code_snippet_location'] ) : false;
+					$snippet  = ( ! empty( $post_meta['wsuwp_code_snippet'] ) && is_array( $post_meta['wsuwp_code_snippet'] ) ) ? reset( $post_meta['wsuwp_code_snippet'] ) : '';
+
+					if ( ! empty( $location ) && ! empty( $snippet ) && array_key_exists( $location, self::$snippets ) ) {
+
+						self::$snippets[ $location ][] = $snippet;
+
+					}
+				}
+			}
+		}
+	}
 }
 
 (new Code_Snippets)->init();
