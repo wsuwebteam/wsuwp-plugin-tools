@@ -131,13 +131,13 @@ class Code_Snippets {
 
 	public static function register_page() {
 
-		$role = ( is_multisite() ) ? 'create_sites' : 'manage_options';
+		// TODO:Fix? $role = ( is_multisite() ) ? 'create_sites' : 'manage_options';
 
 			add_submenu_page(
 				'wsu-tools',
 				'Code Snippets',
 				'Code Snippets',
-				$role,
+				'manage_options',
 				'edit.php?post_type=code_snippet'
 			);
 
