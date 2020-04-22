@@ -107,8 +107,8 @@ class Code_Snippets {
 			'labels'             => $labels,
 			'public'             => false,
 			'publicly_queryable' => false,
-			'show_ui'            => false,
-			'show_in_menu'       => 'edit.php?post_type=code_snippet',
+			'show_ui'            => true,
+			'show_in_menu'       => 'wsu-tools',
 			'query_var'          => true,
 			'rewrite'            => array( 'slug' => 'code-snippet' ),
 			'capability_type'    => 'post',
@@ -133,13 +133,13 @@ class Code_Snippets {
 
 		// TODO:Fix? $role = ( is_multisite() ) ? 'create_sites' : 'manage_options';
 
-			add_submenu_page(
+			/*add_submenu_page(
 				'wsu-tools',
 				'Code Snippets',
 				'Code Snippets',
-				'manage_options',
+				'edit_posts',
 				'edit.php?post_type=code_snippet'
-			);
+			);*/
 
 	}
 
