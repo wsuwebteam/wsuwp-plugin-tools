@@ -8,7 +8,7 @@
 			value="<?php echo esc_attr( $value ); ?>"
 			<?php if ( in_array( strval( $value ), $checked_values, true ) ) : ?>checked="checked"<?php endif; ?> />
 		<span><?php echo esc_html( $checkbox_label  ); ?></span>
-	</label>
+	</label><br />
 	<?php endforeach; ?>
 	<input 
 		type="hidden" 

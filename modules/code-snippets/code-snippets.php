@@ -131,17 +131,15 @@ class Code_Snippets {
 
 	public static function register_page() {
 
-		if ( is_super_admin() ) {
+		$role = ( is_multisite() ) ? 'create_sites' : 'manage_options';
 
 			add_submenu_page(
 				'wsu-tools',
 				'Code Snippets',
 				'Code Snippets',
-				'manage_options',
+				$role,
 				'edit.php?post_type=code_snippet'
 			);
-
-		}
 
 	}
 
@@ -315,32 +313,49 @@ class Code_Snippets {
 
 	public static function set_snippets() {
 
+		$snippets = array();
+
+		$site_snippets = Options::get_option( 'tools', 'code_snippets', 'site_active' );
+
+		if ( ! empty( $site_snippets ) ) {
+
+			$site_snippets = explode( ',', $site_snippets );
+
+			$snippets = array_merge( $snippets, $site_snippets );
+
+		}
+
 		if ( is_singular() ) {
 
-			$post_id = get_the_ID();
-
-			$post_snippets = get_post_meta( $post_id, 'wsuwp_post_code_snippets', true );
+			$post_snippets = get_post_meta( get_the_ID(), 'wsuwp_post_code_snippets', true );
 
 			if ( ! empty( $post_snippets ) ) {
 
-				$snippets = explode( ',', $post_snippets );
+				$post_snippets = explode( ',', $post_snippets );
+	
+				$snippets = array_merge( $snippets, $post_snippets );
+	
+			}
+		}
 
-				foreach ( $snippets as $snippet_id ) {
+		if ( ! empty( $snippets ) ) {
 
-					$post_meta = get_post_meta( $snippet_id );
+			foreach ( $snippets as $snippet_id ) {
 
-					$location = ( ! empty( $post_meta['wsuwp_code_snippet_location'] ) && is_array( $post_meta['wsuwp_code_snippet_location'] ) ) ? reset( $post_meta['wsuwp_code_snippet_location'] ) : false;
-					$snippet  = ( ! empty( $post_meta['wsuwp_code_snippet'] ) && is_array( $post_meta['wsuwp_code_snippet'] ) ) ? reset( $post_meta['wsuwp_code_snippet'] ) : '';
+				$post_meta = get_post_meta( $snippet_id );
 
-					if ( ! empty( $location ) && ! empty( $snippet ) && array_key_exists( $location, self::$snippets ) ) {
+				$location = ( ! empty( $post_meta['wsuwp_code_snippet_location'] ) && is_array( $post_meta['wsuwp_code_snippet_location'] ) ) ? reset( $post_meta['wsuwp_code_snippet_location'] ) : false;
+				$snippet  = ( ! empty( $post_meta['wsuwp_code_snippet'] ) && is_array( $post_meta['wsuwp_code_snippet'] ) ) ? reset( $post_meta['wsuwp_code_snippet'] ) : '';
 
-						self::$snippets[ $location ][] = $snippet;
+				if ( ! empty( $location ) && ! empty( $snippet ) && array_key_exists( $location, self::$snippets ) ) {
 
-					}
+					self::$snippets[ $location ][] = $snippet;
+
 				}
 			}
 		}
 	}
+
 }
 
 (new Code_Snippets)->init();

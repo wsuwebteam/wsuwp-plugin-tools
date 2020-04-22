@@ -9,6 +9,8 @@ class Options {
 		'tools' => array(
 			'code_snippets' => array(
 				'is_active' => false,
+				'site_active' => '',
+				'wsu_active' => '',
 			),
 		),
 	);

@@ -32,6 +32,12 @@ class Plugin {
 
 	}
 
+	public static function get_plugin_url() {
+
+		return plugin_dir_url( dirname( __FILE__ ) );
+
+	}
+
 
 	public static function get_module_dir() {
 
