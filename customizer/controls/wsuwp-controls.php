@@ -6,7 +6,7 @@ class WSUWP_Customize_Control_Multi_Checkbox extends \WP_Customize_Control {
 
 	public function enqueue() {
 
-		wp_enqueue_script( 'customize-wsuwp-controls', Plugin::get_plugin_dir() . 'customizer/controls/wsuwp-controls.js', array( 'jquery' ) );
+		//wp_enqueue_script( 'wsuwp-customize-wsuwp-controls', Plugin::get_plugin_url() . 'customizer/controls/wsuwp-controls.js', array( 'jquery' ) );
 
 	}
 

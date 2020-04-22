@@ -9,13 +9,19 @@ class Customizer_Section_Code_Snippets extends Customizer_Section {
 
 	public function add_section() {
 
-		$code_snippets = get_posts(
+		$code_snippet_posts = get_posts(
 			array(
 				'post_type'      => 'code_snippet',
 				'posts_per_page' => -1,
 				'post_status'    => 'publish',
 			)
 		);
+
+		$code_snippets = array();
+
+		foreach ( $code_snippet_posts as $code_snippet ) {
+			$code_snippets[ $code_snippet->ID ] = $code_snippet->post_title;
+		}
 
 		$this->wp_customize->add_section(
 			$this->get( 'section_id' ),
@@ -36,9 +42,18 @@ class Customizer_Section_Code_Snippets extends Customizer_Section {
 		);
 
 		$this->wp_customize->add_setting(
-			$this->get_setting_key( 'active_scripts', true ),
+			$this->get_setting_key( 'site_active', true ),
 			array(
-				'default'     => false,
+				'default'     => '',
+				'transport'   => 'refresh',
+				'type'        => 'option',
+			)
+		);
+
+		$this->wp_customize->add_setting(
+			$this->get_setting_key( 'global_active', true ),
+			array(
+				'default'     => '',
 				'transport'   => 'refresh',
 				'type'        => 'option',
 			)
@@ -54,10 +69,25 @@ class Customizer_Section_Code_Snippets extends Customizer_Section {
 			)
 		);
 
+
 		$this->wp_customize->add_control(
 			new WSUWP_Customize_Control_Multi_Checkbox(
 				$this->wp_customize,
-				$this->get_control_key( 'active_scripts' ),
+				$this->get_control_key( 'site_active' ),
+				array(
+					'section' => $this->get( 'section_id' ),
+					'label'   => 'Site-Wide Active Snippets',
+					'settings' => $this->get_setting_key( 'site_active',  true ),
+					'type'    => 'checkbox-multiple',
+					'choices' => $code_snippets,
+				)
+			)
+		);
+
+		/*$this->wp_customize->add_control(
+			new WSUWP_Customize_Control_Multi_Checkbox(
+				$this->wp_customize,
+				$this->get_control_key( 'wsu_active_scripts' ),
 				array(
 					'section' => $this->get( 'section_id' ),
 					'label'   => 'Site-Wide Active Snippets',
@@ -68,7 +98,7 @@ class Customizer_Section_Code_Snippets extends Customizer_Section {
 					),
 				)
 			)
-		);
+		);*/
 
 	}
 
