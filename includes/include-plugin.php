@@ -22,6 +22,7 @@ class Plugin {
 	protected static function init_modules() {
 
 		require_once self::get_module_dir() . 'code-snippets/code-snippets.php';
+		require_once self::get_module_dir() . 'alt-text-updater/alt-text-updater.php';
 
 	}
 
