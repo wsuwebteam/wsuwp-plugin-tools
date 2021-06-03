@@ -65,9 +65,9 @@ class Code_Snippets {
 
 			add_action( 'wp', __CLASS__ . '::set_snippets' );
 
-			add_action( 'wp_head', __CLASS__ . '::do_header_snippets' );
+			add_action( 'wp_head', __CLASS__ . '::do_header_snippets', 99999 );
 
-			add_action( 'wp_footer', __CLASS__ . '::do_footer_snippets' );
+			add_action( 'wp_footer', __CLASS__ . '::do_footer_snippets', 99999 );
 
 		}
 
