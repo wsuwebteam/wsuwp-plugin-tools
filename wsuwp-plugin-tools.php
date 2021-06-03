@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: WSUWP Tools
-Version: 1.1.2
+Version: 1.1.3
 Description: A plugin to add features & tools.
 Author: washingtonstateuniversity, Danial Bleile
 Author URI: https://github.com/washingtonstateuniversity/
