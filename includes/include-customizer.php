@@ -40,7 +40,7 @@ class Customizer {
 			'tools',
 			array(
 				'priority'       => 10,
-				'capability'     => 'delete_users',
+				'capability'     => 'activate_plugins',
 				'title'          => 'WSU Tools',
 				'description'    => 'Add Tools & Features',
 			)
