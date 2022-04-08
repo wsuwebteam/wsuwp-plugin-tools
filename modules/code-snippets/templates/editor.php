@@ -12,8 +12,9 @@
 		<label>Snippet Location <span>Required</span></label>
 		<select name="wsuwp_code_snippet_location">
 			<option value="" <?php selected( '', $location ); ?>>...Select</option>
-			<option value="footer" <?php selected( 'footer', $location ); ?>>Footer</option>
 			<option value="header" <?php selected( 'header', $location ); ?>>Header</option>
+			<option value="body" <?php selected( 'body', $location ); ?>>After Open Body Tag</option>
+			<option value="footer" <?php selected( 'footer', $location ); ?>>Footer</option>
 		</select>
 	</p>
 	<p>
