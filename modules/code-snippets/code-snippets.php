@@ -14,6 +14,7 @@ class Code_Snippets {
 	protected static $nonce_action = 'wsuwp_tools_code_snippet_nonce_save_post';
 	protected static $snippets = array(
 		'header' => array(),
+		'body'   => array(),
 		'footer' => array(),
 	);
 
@@ -66,6 +67,8 @@ class Code_Snippets {
 			add_action( 'wp', __CLASS__ . '::set_snippets' );
 
 			add_action( 'wp_head', __CLASS__ . '::do_header_snippets', 99999 );
+
+			add_action( 'wp_body_open', __CLASS__ . '::do_body_snippets', 99999 );
 
 			add_action( 'wp_footer', __CLASS__ . '::do_footer_snippets', 99999 );
 
@@ -292,6 +295,19 @@ class Code_Snippets {
 
 			}
 
+		}
+
+	}
+
+	public static function do_body_snippets() {
+
+		if ( ! empty( self::$snippets['body'] ) ) {
+
+			foreach ( self::$snippets['body'] as $snippet ) {
+
+				echo $snippet;
+
+			}
 		}
 
 	}
